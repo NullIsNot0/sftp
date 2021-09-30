@@ -1,13 +1,14 @@
-FROM debian:buster
-MAINTAINER Adrian Dvergsdal [atmoz.net]
+FROM alpine:3.14
+LABEL Maintainer="Adrian Dvergsdal [atmoz.net]"
+
 
 # Steps done in one RUN layer:
 # - Install packages
+# - Fix default group (1000 does not exist)
 # - OpenSSH needs /var/run/sshd to run
 # - Remove generic host keys, entrypoint generates unique keys
-RUN apt-get update && \
-    apt-get -y install openssh-server && \
-    rm -rf /var/lib/apt/lists/* && \
+RUN apk add --no-cache bash shadow openssh openssh-sftp-server && \
+    sed -i 's/GROUP=1000/GROUP=100/' /etc/default/useradd && \
     mkdir -p /var/run/sshd && \
     rm -f /etc/ssh/ssh_host_*key*
 
